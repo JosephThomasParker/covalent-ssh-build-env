@@ -1,0 +1,2 @@
+covalent==0.232.0.post1
+git+https://github.com/JosephThomasParker/covalent-ssh-plugin.git@bugfix/fix_ports#egg=covalent-ssh-plugin
