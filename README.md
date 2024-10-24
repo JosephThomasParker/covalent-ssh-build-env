@@ -5,7 +5,7 @@ This repo gives a reproducible environment for running a Covalent workflow where
 ## Dependencies
 
 * [Covalent](https://github.com/AgnostiqHQ/covalent)
-* Python 3.8, 3.9 or 3.10 (this is tested with 3.10) 
+* Python 3.8, 3.9 or 3.10 (this is tested with 3.10). Does **not** work with 3.11.
 
 ### Remote systems
 
