@@ -1,0 +1,49 @@
+# Use the official Python 3.10 image as the base image
+FROM python:3.10-slim
+LABEL maintainer="joseph.parker@ichec.ie"
+LABEL version="1.0.0"
+LABEL description="Image for testing software that connects via ssh"
+
+# Disable Prompt During Packages Installation
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Install necessary packages (git, vim, rsync, curl)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        git \
+        vim \
+        rsync \
+        curl \
+        openssh-server \
+        patch \
+        build-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Covalent and Covalent SSH Plugin
+RUN pip install covalent covalent-ssh-plugin
+
+# Create privilege separation directory
+RUN mkdir /run/sshd
+
+# Copy SSH key for authentication
+ARG MY_SSH_KEY
+
+# Create the .ssh directory and copy SSH key for authentication
+RUN mkdir -p /root/.ssh \
+    && echo "$MY_SSH_KEY" > /root/.ssh/authorized_keys \
+    && chmod 700 /root/.ssh \
+    && chmod 600 /root/.ssh/authorized_keys
+
+# Set root password to 'root' and configure SSH
+RUN echo 'root:root' | chpasswd
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i 's@session    required   pam_loginuid.so@session    optional   pam_loginuid.so@g' /etc/pam.d/sshd
+RUN sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+
+# Expose port 22
+EXPOSE 22 
+
+# Start SSH server
+CMD ["/usr/sbin/sshd", "-D", "-e"]
+
